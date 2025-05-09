@@ -1,11 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Test Barcelone</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guide Barcelone – Séjour entre filles</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0 1em;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      color: #b20063;
+    }
+    #map {
+      height: 600px;
+      margin: 2em 0;
+    }
+    section {
+      margin-bottom: 3em;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello depuis Barcelone !</h1>
-  <p>Ceci est une page test.</p>
+  <h1>💃 Guide de Barcelone – Séjour du 8 au 11 mai</h1>
+
+  <section>
+    <h2>📅 Programme jour par jour</h2>
+
+    <h3>🗓️ 8 mai (arrivée à 17h)</h3>
+    <ul>
+      <li>Check-in et installation</li>
+      <li>Dîner tapas à <strong>Bormuth</strong> (quartier El Born)</li>
+      <li>Verre au bar <strong>Nevermind</strong> (ambiance skate, alternative)</li>
+    </ul>
+
+    <h3>🗓️ 9 mai</h3>
+    <ul>
+      <li>Brunch vers 10h30 au <strong>Brunch & Cake</strong> (Passatge de la Concepció)</li>
+      <li>Balade au <strong>Parc Güell</strong> (accès via entrée principale – réserver !)</li>
+      <li>Après-midi à la plage de <strong>Barceloneta</strong></li>
+      <li>Dîner à <strong>Tapeo</strong> (tapas haut de gamme)</li>
+      <li>Soirée dans le quartier <strong>El Born</strong> ou <strong>Raval</strong></li>
+    </ul>
+
+    <h3>🗓️ 10 mai</h3>
+    <ul>
+      <li>Grasse matinée et café tranquille au <strong>Marché de la Boqueria</strong></li>
+      <li>Visite du <strong>MOCO Museum</strong> (art moderne et immersif)</li>
+      <li>Après-midi plage ou shopping (Gothic + boutiques locales)</li>
+      <li>Dîner festif au <strong>El Nacional</strong> (grande halle chic avec choix)</li>
+      <li>Soirée dans un bar ambiance pub type <strong>Michael Collins</strong> (près de Sagrada Família)</li>
+    </ul>
+
+    <h3>🗓️ 11 mai (départ à midi)</h3>
+    <ul>
+      <li>Petit-déjeuner au soleil dans le quartier de l’hôtel</li>
+      <li>Dernier tour dans une boutique comme <strong>La Manual Alpargatera</strong> (espadrilles artisanales)</li>
+      <li>Départ et au revoir à Barcelone !</li>
+    </ul>
+  </section>
+
+  <section id="carte">
+    <h2>🗺️ Carte interactive</h2>
+    <div id="map"></div>
+  </section>
+
+  <!-- Scripts Leaflet + Routing -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+
+  <script>
+    var map = L.map('map').setView([41.3851, 2.1734], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var userLocation = null;
+
+    map.locate({ setView: true, maxZoom: 16, watch: false });
+
+    map.on('locationfound', function(e) {
+      userLocation = e.latlng;
+      L.marker(userLocation).addTo(map)
+        .bindPopup("Vous êtes ici !").openPopup();
+    });
+
+    map.on('locationerror', function() {
+      alert("Géolocalisation non autorisée ou indisponible.");
+    });
+
+    var lieux = [
+      { nom: "Montjuïc", coords: [41.3636, 2.1585], lien: "https://fr.wikipedia.org/wiki/Montju%C3%AFc" },
+      { nom: "Parc Güell", coords: [41.4145, 2.1527], lien: "https://parkguell.barcelona" },
+      { nom: "MOCO Museum", coords: [41.3874, 2.1701], lien: "https://mocomuseum.com/barcelona/" },
+      { nom: "Plage Barceloneta", coords: [41.3766, 2.1925], lien: "https://barcelonaturisme.com/wv3/fr/page/94/la-barceloneta.html" },
+      { nom: "Bar El Nacional", coords: [41.3902, 2.1675], lien: "https://www.elnacionalbcn.com/" },
+      { nom: "Bar Nevermind", coords: [41.3837, 2.1706], lien: "https://goo.gl/maps/ugyRaBAdReVtJGBa6" },
+      { nom: "Restaurant Tapeo", coords: [41.3856, 2.1812], lien: "https://www.tapeoborn.cat/" },
+      { nom: "Restaurant Bormuth", coords: [41.3855, 2.1802], lien: "https://www.bormuth.com/" },
+      { nom: "Marché Boqueria", coords: [41.3820, 2.1722], lien: "https://www.boqueria.barcelona/" },
+      { nom: "Casa Gispert (épicerie)", coords: [41.3848, 2.1791], lien: "https://www.casagispert.com/" },
+      { nom: "La Manual Alpargatera", coords: [41.3802, 2.1766], lien: "https://lamanual.com/" }
+    ];
+
+    lieux.forEach(function(lieu) {
+      var marker = L.marker(lieu.coords).addTo(map);
+      marker.bindPopup(
+        "<b>" + lieu.nom + "</b><br><a href='" + lieu.lien + "' target='_blank'>Plus d'infos</a><br><a href='#' onclick='routeVers([" + lieu.coords + "]);return false;'>Itinéraire depuis ma position</a>"
+      );
+    });
+
+    var control = null;
+
+    function routeVers(destination) {
+      if (!userLocation) {
+        alert("Position utilisateur non disponible !");
+        return;
+      }
+      if (control) {
+        map.removeControl(control);
+      }
+      control = L.Routing.control({
+        waypoints: [
+          L.latLng(userLocation.lat, userLocation.lng),
+          L.latLng(destination[0], destination[1])
+        ],
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        addWaypoints: false,
+        createMarker: () => null,
+        language: 'fr'
+      }).addTo(map);
+    }
+  </script>
 </body>
 </html>
